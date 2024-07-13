@@ -8,7 +8,6 @@ struct ContentView: View {
     
     @State private var alertTitle = ""
     @State private var alertMessage = ""
-    @State private var showingAlert = false
     
     static var defaultWakeUpTime: Date {
         var components = DateComponents()
@@ -20,38 +19,40 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Form {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("When do you want to wake up?")
-                        .font(.headline)
-                    DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute).labelsHidden()
+                Section("When do you want to wake up ?") {
+                    DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
                 }
                 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Desiered amount of sleep ?")
-                        .font(.headline)
-                    
+                Section("Desired amount of sleep ?") {
                     Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
                 }
                 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Daily coffee intake")
-                        .font(.headline)
-                    
-                    Stepper("^[\(coffeAmount) cup](inflect:true)", value: $coffeAmount, in: 1...20)
+                Section("Coffee cups per day ?") {
+                    Picker("Daily coffee intake", selection: $coffeAmount) {
+                        ForEach(1..<21) {
+                            Text("^[\($0) cup](inflect:true)")
+                        }
+                    }
                 }
-                
             }
             .navigationTitle("BetterRest")
             .toolbar {
                 Button("Calculate", action: calculateBedTime)
             }
-            .alert(alertTitle, isPresented: $showingAlert) {
-                Button("OK") { }
-            } message: {
+            
+            VStack() {
+                Text(alertTitle)
+                    .font(.headline)
                 Text(alertMessage)
+                    .font(.largeTitle.bold())
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.mint)
+            .foregroundColor(.primary)
         }
     }
+
     
     func calculateBedTime() {
         do {
@@ -75,7 +76,6 @@ struct ContentView: View {
             alertMessage = "Sorry, there was a problem calculating your bed time."
             
         }
-        showingAlert = true
     }
 }
 
